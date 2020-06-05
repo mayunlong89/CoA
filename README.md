@@ -1,2 +1,3 @@
-# childhood_onset_astham
-Integrative genomics analysis
+# childhood_onset_asthma (CoA)
+Integrative genomics analysis for CoA
+Co-expression patterns analysis of genes identified from Sherlock integrative genomics analysis
