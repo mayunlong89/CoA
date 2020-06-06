@@ -5,6 +5,7 @@
 
 #Set up the working directory
 setwd("C:\\Users\\Administrator\\Desktop\\corplot")
+setwd("F:\\Desktop\\corplot")
 
 #Part I install package
 
@@ -14,12 +15,14 @@ if(!require("corrr"))install.packages("corrr")
 if(!require("dplyr"))install.packages("dplyr")
 
 
+
 #Load the corrplot package
 library(corrplot)
 library(corrr)
 library(dplyr)
 
 set.seed(141079)
+
 
 #Take a example for using the corrplot package
 #y <- cor(mtcars)
@@ -52,6 +55,7 @@ data_for_Control <-t(mat_pearson1)
 correlation_Control <- cor(data_for_Control)
 
 
+
 #Part III Visualization
 
 #Ploting the identified genes co-expression patterns in the CoA group
@@ -67,6 +71,7 @@ write.csv(correlation_Control, file = "correlation_Control.csv",
 
 
 #Part IV Use corrr package to visualize gene-gene co-expression patterns in a network
+
 
 #Co-expression patterns for CoA
 data_CoA <- data_for_CoA %>% correlate() %>%  rearrange() %>%  shave()
@@ -84,18 +89,44 @@ data_for_Control %>% correlate() %>%  rearrange() %>% rplot()
 #Visualization for co-expression network
 data_for_Control %>% correlate() %>%  rearrange() %>% network_plot(min_cor = 0.3)
 
+
 #Part V Paired Student's t-test
 
 # Create correlation data frame (cor_CoA)
 temp_CoA<- data_for_CoA %>% correlate() %>%  rearrange() %>% stretch()
-cor_data_CoA <- na.omit(temp_CoA$r)
+cor_data_CoA_file <- na.omit(temp_CoA)
+write.csv(cor_data_CoA_file, file = "cor_data_CoA_file.csv", 
+          row.names=TRUE)
+#cor_data_CoA <- na.omit(temp_CoA$r)
 
 # Create correlation data frame (cor_Control)
 temp_control <- data_for_Control %>% correlate() %>%  rearrange() %>% stretch()
-cor_data_Control <- na.omit(temp_control$r)
+cor_data_Control_file <- na.omit(temp_control)
+write.csv(cor_data_Control_file, file = "cor_data_Control_file.csv", 
+          row.names=TRUE)
+#cor_data_Control <- na.omit(temp_control$r)
+
+
+#define a function for match the correlation data betwen CoA and control
+Cor_reshape <- function(x,y){
+   len = length(x[,1])
+   for (i in seq(1,len)){
+     for(j in seq(1,len)){
+       if (x[i,1]==y[j,1] & x[i,2]==y[j,2]){
+           x[i,4] <- y[j,3]
+       }
+     }
+   }
+  colnames(x) <- c("Gene1","Gene2","CoA","Control")
+  final_data <- na.omit(x)
+  return(final_data)
+}
+
+#use the Cor_reshape for data organization
+data <- Cor_reshape(temp_CoA,temp_control)
 
 #Paired t-test
-tt <- t.test(cor_data_CoA,cor_data_Control, paired=TRUE) 
+tt <- t.test(data$CoA,data$Control, paired=TRUE) 
 Pvalue <- tt[3]
 
 
