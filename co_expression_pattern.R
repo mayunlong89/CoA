@@ -1,9 +1,9 @@
 #Rscript
 #Author: Yunlong Ma
 #Co-expression patterns by using the Pearson correlation analysis
-#Usage: it is used for exploring the co-expression patterns among genes associated with Childhood-onset asthma (CoA)
+#Usage: it is designed to uncover the co-expression patterns among genes associated with Childhood-onset asthma (CoA)
 
-#Set up the working directory
+#Set up the working directory depended on user own need.
 setwd("C:\\Users\\Administrator\\Desktop\\corplot")
 setwd("F:\\Desktop\\corplot")
 
@@ -13,6 +13,8 @@ setwd("F:\\Desktop\\corplot")
 if(!require("corrplot"))install.packages("corrplot")
 if(!require("corrr"))install.packages("corrr")
 if(!require("dplyr"))install.packages("dplyr")
+if(!require("ggplot2"))install.packages("ggplot2")
+if(!require("reshape2"))install.packages("reshape2")
 
 
 
@@ -20,6 +22,10 @@ if(!require("dplyr"))install.packages("dplyr")
 library(corrplot)
 library(corrr)
 library(dplyr)
+library(ggplot2)
+library(reshape2)
+
+
 
 set.seed(141079)
 
@@ -128,6 +134,14 @@ data <- Cor_reshape(temp_CoA,temp_control)
 #Paired t-test
 tt <- t.test(data$CoA,data$Control, paired=TRUE) 
 Pvalue <- tt[3]
+
+#Plotting the density figure
+md <- melt(data,id=c("Gene1","Gene2"))
+p<-ggplot(md, aes(x = value))
+p + geom_density(color = "black", fill = "gray")
+p + geom_density(aes(color =variable)) 
+p + geom_density(aes(fill = variable), alpha=0.6)
+
 
 
 #End
